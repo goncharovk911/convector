@@ -4,6 +4,11 @@
   width: 500px;
   position: relative;
 }
+.select{
+	width: 100%;
+	position: relative;
+	z-index: 100;
+}
 
 .selectInput {
   border: 1px solid #ccc;
@@ -18,7 +23,7 @@
   position: absolute;
   border: 1px solid #ccc;
   border-radius: 5px;
-  height: 46px;
+  height: 200px;
   left: 0;
   right: 0;
   max-height: 200px;
@@ -26,7 +31,10 @@
   box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.3);
 }
 .selectOpen {
+
   display: block;
+  position: relative;
+  margin: 2px 5px 5px 5px;
 }
 .selectInput {
   border-bottom: none;
@@ -44,4 +52,22 @@
   background-color: #eee;
   cursor: pointer;
   transition: 0.15s background-color ease-in;
+}
+.selectInput:hover {
+	background-color: #eee;
+	cursor: pointer;
+	transition: .15s background-color ease-in;
+  }
+.fa{
+	float: left;
+}
+.selectBackdrop{
+position: fixed;
+display: none;
+z-index: -1;
+top: 0;
+right: 0;
+left: 0;
+bottom: 0;
+background: rgba(0, 0, 0, .5);
 }

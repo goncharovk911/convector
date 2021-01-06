@@ -1,59 +1,168 @@
-const getTemplate = () =>{
-  return `
-          <ul class='selectList'>
-            <li class='selectItem'>1</li>
-            <li class='selectItem'>2</li>
-            <li class='selectItem'>3</li>
-            <li class='selectItem'>4</li>
-            <li class='selectItem'>5</li>
-            <li class='selectItem'>6</li>
-            <li class='selectItem'>7</li>
-          </ul>
-        `
+let ser = [
+	{ id: '1', value: 'React', distance: { "unit": "m", "value": 0.5 }, convert_to: "ft" },
+	{ id: '2', value: 'Angular', distance: { "unit": "c", "value": 0.5 }, convert_to: "ft" },
+	{ id: '3', value: 'Vue', distance: { "unit": "i", "value": 0.5 }, convert_to: "ft" },
+	{ id: '4', value: 'React Native', distance: { "unit": "f", "value": 0.5 }, convert_to: "ft" }
+]
+
+let bas = JSON.stringify(ser)
+
+
+const getTemplate = (data = [], placeholder) => {
+	const text = placeholder ?? 'Placeholder default'
+
+	const items = data.map(item => {
+		return `
+		<li class='selectItem' data-type='item' data-value='${item.id}'>${item.value}</li>
+		`
+	})
+	return `
+	<div class = 'selectBackdrop' data-type='backdrop'></div>
+	<div class='selectInput' data-type='input' >
+						<span data-type='value'>${text}</span>
+							<i class="fa fa-chevron-down" aria-hidden="true" data-type='arrow'></i>
+						</div>
+						<div class='selectDropdown' id='select'  data-type='selec'>
+						<ul class='selectList' id = 'hi'> 
+						${items.join('')}
+						
+					  </ul>
+	</div>
+			
+		  `
 }
-class Select{
-  constructor(selector, options){
-    this.el = document.querySelector(selector)
-    this.#render()
-    this.#setup()
-  }
 
-  #render(){
-    this.el.innerHTML=getTemplate()
-  }
+class Select {
+	constructor(selector, options) {
 
-  #setup(){
-    this.clickHandler = this.clickHandler.bind(this)
-    this.el.addEventListener('click', this.clickHandler)
-  }
+		this.el = document.querySelector(selector)
 
-  clickHandler(event){
-      console.log(event)
-  }
-  open(){
-    this.el.classList.add('selectOpen')
-  }
+		this.options = options
+		this.seleId = null
+		this.my()
+		this.#render()
 
-  close(){
-    this.el.classList.remove('selectOpen')
-  }
-  destroy(){
-   this.el.removeEventListener('click', this.clickHandler)
-  }
+		this.#setup()
+
+
+	}
+
+	#render() {
+		const { placeholder, data } = this.options
+		this.el.classList.add('select')
+		this.el.innerHTML = getTemplate(data, placeholder)
+
+	}
+
+	#setup() {
+		this.clickHandler = this.clickHandler.bind(this)
+		this.el.addEventListener('click', this.clickHandler)
+		this.arrow = this.el.querySelector('[data-type="arrow"]')
+		this.selec = this.el.querySelector('[data-type="selec"]')
+		this.value = this.el.querySelector('[data-type="value"]')
+	}
+
+	clickHandler(event) {
+		console.log(event.target.dataset);
+		const { type } = event.target.dataset
+		if (type === 'input') {
+			this.toggle()
+		} else if (type === 'item') {
+			const id = event.target.dataset.value
+			this.select(id)
+		} else if (type === 'backdrop') {
+			console.log(1);
+		}
+		//input.placeholder = `Input ${select.el.querySelector('[data-type="value"]').textContent.toLowerCase(0)}`;
+	}
+
+	get isOpen() {
+		return this.el.lastElementChild.classList.contains('selectOpen')
+	}
+
+	get current() {
+		return this.options.data.find(item => item.id === this.selectedId)
+	}
+
+	select(id) {
+		this.selectedId = id
+		this.value.textContent = this.current.value
+		this.el.querySelectorAll('[data-id="item"]').forEach(el => {
+			el.classList.remove('selected')
+		})
+
+		this.close()
+	}
+
+	toggle() {
+
+		this.isOpen ? this.close() : this.open()
+	}
+
+	open() {
+		this.selec.classList.add('selectOpen')
+		this.arrow.classList.remove('fa-chevron-down')
+		this.arrow.classList.add('fa-chevron-up')
+	}
+
+	close() {
+		this.selec.classList.remove('selectOpen')
+		this.arrow.classList.add('fa-chevron-down')
+		this.arrow.classList.remove('fa-chevron-up')
+	}
+	destroy() {
+		this.el.removeEventListener('click', this.clickHandler)
+
+	}
+	my() {
+
+		this.options.data.push({ id: '4', value: 'Feet' })
+
+	}
+
 }
-const select = new Select('#select',{
 
+const select = new Select('#select', {
+	placeholder: "Choose elements",
+	data: JSON.parse(bas)
 })
-window.s = select;
-
+const a = select
 console.log(select);
+window.s = select;
+let x = `{"distance":{
+			"unit": "m",
+			"value": 0.5
+			},
+	"convert_to": "ft"}`
+let my = JSON.parse(x)
+ser.push(my)
+console.log(ser);
+
+function test() {
+	/*let elw = document.getElementById('hi')
+	let link = document.createElement('li')
+
+	link.innerHTML = 'dd'
+	elw.appendChild(link)
+	console.log(JSON.parse(x));*/
+	ser.push(my)
+
+}
+function del() {
+	let ela = document.getElementById('b')
+	let d = document.getElementById('hi')
+	d.removeChild(ela)
+
+}
+/*
+console.log(document.getElementById('select'));
+
 let output = document.getElementById('output')
 let inputUnit = document.getElementById('inputUnit')
 
 let input = document.createElement('input');
 input.type = 'number';
 input.id = 'inputUnit';
-input.placeholder = 'Input ';
 input.className = 'form-control form--control-lg'
 
 inputUnit.appendChild(input);
@@ -66,7 +175,7 @@ let element = document.createElement('div');
 block1.id = 'meters';
 block1.className = 'card alert-warning';
 
-nameElem.innerHTML = 'Meters:';
+
 
 element.id = 'metersOutput';
 
@@ -74,116 +183,21 @@ blockLit.className = 'card-block';
 
 output.appendChild(block1).appendChild(blockLit).appendChild(nameElem);
 output.appendChild(block1).appendChild(blockLit).appendChild(element);
-  document.getElementById('output').style.visibility='hidden';
+document.getElementById('output').style.visibility = 'hidden';
+document.getElementById('inputUnit').addEventListener('input', function (e) {
+	let inputName = select.el.querySelector('[data-type="value"]').textContent
 
-document.getElementById('inputUnit').addEventListener('input', function(e){
-  document.getElementById('output').style.visibility='visible';
-  let km = e.target.value;
-  document.getElementById('metersOutput').innerHTML=km*1000;
-})
-
-/*let header = document.querySelector('header');
-let section = document.querySelector('section');
-let requestURL= 'https://mdn.github.io/learning-area/javascript/oojs/json/superheroes.json'
-let request = new XMLHttpRequest();
-request.open('GET', requestURL);
-request.responseType = 'json';
-request.send();
-request.onload =function () {
-  let superHeroes = request.response;
-  populateHeader(superHeroes);
-  showHeroes(superHeroes);
-} 
-
-function populateHeader(jsonObj) {
-  let myH1 = document.createElement('h1');
-  myH1.textContent = jsonObj['squadName'];
-  header.appendChild(myH1);
-
-  let myPara = document.createElement('p');
-  myPara.textContent='Hometown: ' + jsonObj['homeTown'] + ' // Formed: ' + jsonObj['formed'];
-  header.appendChild(myPara);
-}
-
-function showHeroes(jsonObj) {
-  let heroes = jsonObj['members'];
-  console.log(jsonObj);
-  console.log(heroes);
-  for (let i = 0; i < heroes.length; i++) {
-   let myArticle = document.createElement('article');
-   let myH2 = document.createElement('h2');
-   let myPara1 = document.createElement('p');
-   let myPara2 = document.createElement('p');
-   let myPara3 = document.createElement('p');
-   let myList = document.createElement('ul');
-
-   myH2.textContent = heroes[i].name;
-   myPara1.textContent = 'Secret identity: ' + heroes[i].secretIdentity;
-   myPara2.textContent = 'Age: ' + heroes[i].age;
-   myPara3.textContent = 'Superpowers:';
-    
-   let superPowers = heroes[i].powers;
-   for (let j = 0; j < superPowers.length; j++) {
-     let listItem = document.createElement('li');
-     listItem.textContent = superPowers[j];
-     myList.appendChild(listItem);     
-   }
-   myArticle.appendChild(myH2)
-   myArticle.appendChild(myPara1)
-   myArticle.appendChild(myPara2)
-   myArticle.appendChild(myPara3)
-   myArticle.appendChild(myList)
-   section.appendChild(myArticle)
-  }
-}
-request.open('GET', requestURL);
-request.responseType = 'text'; // now we're getting a string!
-request.send();
-*/
-/*
-let superHeroes=[{
-  'squadName': 'Super hero squad',
-  'homeTown': 'Metro City',
-  'formed': 2016,
-  'secretBase': 'Super tower',
-  'active': true,
-  'members': [
-    {
-      'name': 'Molecule Man',
-      'age': 29,
-      'secretIndentity': 'Dan Jukes',
-      'powers': [
-        'Radiation resistance',
-        'Turning tiny',
-        'Radiation blast'
-      ]
-    },
-    {
-      'name':'Madame Uppercut',
-      'age': 39,
-      'secretIdenity': 'Jane Wilson',
-      'powers':[
-        'Millon tonne punch',
-        'Damage resistance',
-        'Superhuman reflexes'
-      ]
-    },
-    {
-      'name':'Enternal Flame',
-      'age': 1000000,
-      'secretIdentity': 'Unknown',
-      'powers':[
-        'Immortality',
-        'Heat Immunity',
-        'Inferno',
-        'Teleportation',
-        'Interdimensional travel'
-      ]
-    }
-  ]
-}]
-superHeroes.homeTown
-superHeroes['active']
-superHeroes[0][1]['powers'][2]
-
-*/
+	console.log(inputName);
+	if (inputName === 'Inches') {
+		document.getElementById('output').style.visibility = 'visible';
+		let km = e.target.value;
+		document.getElementById('metersOutput').innerHTML = km * 2.54;
+		nameElem.innerHTML = `Centimeters:`;
+	}
+	else if (inputName === 'Centimeters') {
+		document.getElementById('output').style.visibility = 'visible';
+		let km = e.target.value;
+		document.getElementById('metersOutput').innerHTML = km / 2.54;
+		nameElem.innerHTML = `Inches:`;
+	}
+})*/
