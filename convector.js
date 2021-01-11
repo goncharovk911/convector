@@ -1,8 +1,7 @@
 let ser = [
-	{ id: '1', value: 'React', distance: { "unit": "m", "value": 0.5 }, convert_to: "ft" },
-	{ id: '2', value: 'Angular', distance: { "unit": "c", "value": 0.5 }, convert_to: "ft" },
-	{ id: '3', value: 'Vue', distance: { "unit": "i", "value": 0.5 }, convert_to: "ft" },
-	{ id: '4', value: 'React Native', distance: { "unit": "f", "value": 0.5 }, convert_to: "ft" }
+	{ id: '1', unit: 'Foot', value: 30.48, convert_to: "cm" },
+	{ id: '2', unit: 'Centimeters', value: 30.48, convert_to: "ft" },
+
 ]
 
 let bas = JSON.stringify(ser)
@@ -13,13 +12,13 @@ const getTemplate = (data = [], placeholder) => {
 
 	const items = data.map(item => {
 		return `
-		<li class='selectItem' data-type='item' data-value='${item.id}'>${item.value}</li>
+		<li class='selectItem' data-type='item' data-unit='${item.unit}' data-value='${item.id}' data-distance='${item.value}' data-convert='${item.convert_to}'>${item.unit}</li>
 		`
 	})
 	return `
-	<div class = 'selectBackdrop' data-type='backdrop'></div>
+	
 	<div class='selectInput' data-type='input' >
-						<span data-type='value'>${text}</span>
+						<span data-type='value' data-distance='${text}'>${text}</span>
 							<i class="fa fa-chevron-down" aria-hidden="true" data-type='arrow'></i>
 						</div>
 						<div class='selectDropdown' id='select'  data-type='selec'>
@@ -27,21 +26,22 @@ const getTemplate = (data = [], placeholder) => {
 						${items.join('')}
 						
 					  </ul>
+					  
 	</div>
-			
+	
+  
+</div>
 		  `
-}
 
+}
 class Select {
 	constructor(selector, options) {
 
 		this.el = document.querySelector(selector)
-
 		this.options = options
 		this.seleId = null
-		this.my()
-		this.#render()
 
+		this.#render()
 		this.#setup()
 
 
@@ -51,8 +51,8 @@ class Select {
 		const { placeholder, data } = this.options
 		this.el.classList.add('select')
 		this.el.innerHTML = getTemplate(data, placeholder)
-
 	}
+
 
 	#setup() {
 		this.clickHandler = this.clickHandler.bind(this)
@@ -60,33 +60,44 @@ class Select {
 		this.arrow = this.el.querySelector('[data-type="arrow"]')
 		this.selec = this.el.querySelector('[data-type="selec"]')
 		this.value = this.el.querySelector('[data-type="value"]')
+		this.distance = this.el.querySelector('[data-distance="value"]')
+		this.convert = this.el.querySelector('[data-convert="value"]')
+		this.unit = this.el.querySelector('[data-unit="value"]')
 	}
 
 	clickHandler(event) {
-		console.log(event.target.dataset);
 		const { type } = event.target.dataset
 		if (type === 'input') {
 			this.toggle()
 		} else if (type === 'item') {
+
 			const id = event.target.dataset.value
-			this.select(id)
+			const distance = event.target.dataset.distance
+			const convert_to = event.target.dataset.convert
+			const unit = event.target.dataset.convert
+			this.select(id, distance, convert_to, unit)
 		} else if (type === 'backdrop') {
-			console.log(1);
+
 		}
 		//input.placeholder = `Input ${select.el.querySelector('[data-type="value"]').textContent.toLowerCase(0)}`;
 	}
 
 	get isOpen() {
+		console.log(this.el.lastElementChild.classList);
 		return this.el.lastElementChild.classList.contains('selectOpen')
+
 	}
 
 	get current() {
 		return this.options.data.find(item => item.id === this.selectedId)
 	}
 
-	select(id) {
+	select(id, distance, convert_to, unit) {
 		this.selectedId = id
-		this.value.textContent = this.current.value
+		this.distance = distance
+		this.convert = convert_to
+		this.unit = this.current.unit
+		this.value.textContent = this.current.unit
 		this.el.querySelectorAll('[data-id="item"]').forEach(el => {
 			el.classList.remove('selected')
 		})
@@ -95,7 +106,7 @@ class Select {
 	}
 
 	toggle() {
-
+		console.log(this.isOpen);
 		this.isOpen ? this.close() : this.open()
 	}
 
@@ -114,11 +125,7 @@ class Select {
 		this.el.removeEventListener('click', this.clickHandler)
 
 	}
-	my() {
 
-		this.options.data.push({ id: '4', value: 'Feet' })
-
-	}
 
 }
 
@@ -126,8 +133,9 @@ const select = new Select('#select', {
 	placeholder: "Choose elements",
 	data: JSON.parse(bas)
 })
+
 const a = select
-console.log(select);
+
 window.s = select;
 let x = `{"distance":{
 			"unit": "m",
@@ -136,26 +144,8 @@ let x = `{"distance":{
 	"convert_to": "ft"}`
 let my = JSON.parse(x)
 ser.push(my)
-console.log(ser);
 
-function test() {
-	/*let elw = document.getElementById('hi')
-	let link = document.createElement('li')
 
-	link.innerHTML = 'dd'
-	elw.appendChild(link)
-	console.log(JSON.parse(x));*/
-	ser.push(my)
-
-}
-function del() {
-	let ela = document.getElementById('b')
-	let d = document.getElementById('hi')
-	d.removeChild(ela)
-
-}
-/*
-console.log(document.getElementById('select'));
 
 let output = document.getElementById('output')
 let inputUnit = document.getElementById('inputUnit')
@@ -185,19 +175,20 @@ output.appendChild(block1).appendChild(blockLit).appendChild(nameElem);
 output.appendChild(block1).appendChild(blockLit).appendChild(element);
 document.getElementById('output').style.visibility = 'hidden';
 document.getElementById('inputUnit').addEventListener('input', function (e) {
-	let inputName = select.el.querySelector('[data-type="value"]').textContent
+	let inputName = select.el.textContent
+	let convert = select.convert
 
-	console.log(inputName);
-	if (inputName === 'Inches') {
+
+	if (select.convert === 'cm') {
 		document.getElementById('output').style.visibility = 'visible';
-		let km = e.target.value;
-		document.getElementById('metersOutput').innerHTML = km * 2.54;
-		nameElem.innerHTML = `Centimeters:`;
+		let elem = e.target.value;
+		document.getElementById('metersOutput').innerHTML = elem * select.distance;
+		nameElem.innerHTML = `${select.convert}:`;
 	}
-	else if (inputName === 'Centimeters') {
+	else if (select.convert === 'ft') {
 		document.getElementById('output').style.visibility = 'visible';
-		let km = e.target.value;
-		document.getElementById('metersOutput').innerHTML = km / 2.54;
-		nameElem.innerHTML = `Inches:`;
+		let elem = e.target.value;
+		document.getElementById('metersOutput').innerHTML = elem / select.distance;
+		nameElem.innerHTML = `${select.convert}:`;
 	}
-})*/
+})
